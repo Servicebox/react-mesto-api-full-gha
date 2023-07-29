@@ -1,4 +1,4 @@
-require('dotenv').config();
+// require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
@@ -37,7 +37,6 @@ mongoose
 const app = express();
 
 app.use(helmet());
-
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
