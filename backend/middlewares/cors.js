@@ -6,12 +6,12 @@
 
 /* allowedCors - массив, содержащий список разрешенных источников запросов.
  Если источник запроса находится в этом списке, то будет разрешен доступ к ресурсам. */
- const allowedCors = [
-  'https://servicebox.nomoredomains.rocks',
-  'http://servicebox.nomoredomains.rocks',
-  'https://localhost:3000',
+const allowedCors = [
+  // 'https://servicebox.nomoredomains.rocks',
+  // 'http://servicebox.nomoredomains.rocks',
+  // 'https://localhost:3000',
   'http://localhost:3000',
-  'https://localhost:3001',
+  // 'https://localhost:3001',
   'http://localhost:3001',
 ];
 
