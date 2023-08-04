@@ -22,7 +22,8 @@
     "helmet": "^7.0.0",
     "jsonwebtoken": "^9.0.1",
     "mongoose": "^7.4.2",
-    "save-dev": "^0.0.1-security"
+    "save-dev": "^0.0.1-security",
+    "winston": "^3.10.0"
   },
   "devDependencies": {
     "eslint": "^8.46.0",

@@ -47,7 +47,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(limiter);
 
-app.use(requestLogger); // подключение логгера запросов
+app.use(requestLogger);
 
 app.use('/', routeSignup);
 app.use('/', routeSignin);
@@ -57,8 +57,8 @@ app.use(auth);
 app.use('/users', routeUsers);
 app.use('/cards', routeCards);
 
-app.use(errorLogger); // подключение логгера ошибок
-app.use(errors()); // обработчик ошибок celebrate
+app.use(errorLogger);
+app.use(errors());
 
 // централизованный обработчик ошибок
 app.use((req, res, next) => next(new NotFoundError('Страницы по запрошенному URL не существует')));
