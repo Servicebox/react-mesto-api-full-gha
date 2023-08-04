@@ -1,4 +1,4 @@
-const JWT_TOKEN_EXPIRES = '7d';
+// const JWT_TOKEN_EXPIRES = '7d';
 
 // генерация сикрет-ключа в терминале через
 // node -e "console.log(require('crypto').randomBytes(32).toString('hex'));"
@@ -11,6 +11,6 @@ module.exports = {
   SECRET_KEY,
   URL_REGEX,
   CREATED_STATUS,
-  JWT_TOKEN_EXPIRES,
+  //  JWT_TOKEN_EXPIRES,
 
 };

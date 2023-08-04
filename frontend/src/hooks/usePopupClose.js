@@ -2,9 +2,10 @@ import { useEffect } from "react";
 
 function usePopupClose(isOpen, closePopup) {
   useEffect(() => {
-    if (!isOpen) return; 
+    if (!isOpen) return; // останавливаем действие эффекта, если попап закрыт
 
     const handleOverlay = (e) => {
+      // если есть `popup_opened` в классах блока, значит, кликнули на оверлей
       if (e.target.classList.contains("popup_opened")) {
         closePopup();
       }
@@ -19,11 +20,13 @@ function usePopupClose(isOpen, closePopup) {
     document.addEventListener("keydown", handleEscape);
     document.addEventListener("mousedown", handleOverlay);
 
+    //  обязательно удаляем обработчики в `clean-up`- функции
     return () => {
       document.removeEventListener("keydown", handleEscape);
       document.removeEventListener("mousedown", handleOverlay);
     };
-  }, [isOpen]);
+    // обязательно следим за `isOpen`, чтобы срабатывало только при открытии, а не при любой перерисовке компонента
+  }, [closePopup, isOpen]);
 }
 
 export { usePopupClose };

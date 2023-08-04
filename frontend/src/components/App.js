@@ -19,14 +19,14 @@ import { EditAvatarPopup } from './EditAvatarPopup.js';
 import { AddPlacePopup } from './AddPlacePopup.js';
 import { ConfirmDeletePopup } from './ConfirmDeletePopup.js';
 
-import { AppContext } from '../contexts/AppContext.js';
+// import { AppContext } from '../contexts/AppContext.js';
 import { CurrentUserContext } from '../contexts/CurrentUserContext.js';
 
 import { api } from '../utils/Api.js';
 import { auth } from '../utils/Auth.js';
 
 function App() {
-
+  /** стейты */
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
@@ -37,29 +37,30 @@ function App() {
   const [selectedCard, setSelectedCard] = useState({});
   const [currentUser, setCurrentUser] = useState(
     {}
-  );
+  ); /** создаем переменную состояния, отвечающую за данные пользователя из апи. Стейт данных текущего пользователя*/
   const [cards, setCards] = useState([]);
   const [deletedCard, setDeletedCard] = useState({});
   // const [isLoading, setIsLoading] = /** переменная для отслеживания состояния загрузки во время ожидания ответа от сервера */
   //   useState(
   //     false
   //   );
-
+  /** стейты индикатора загрузки для каждого попап */
   const [isLoadingEditProfilePopup, setIsLoadingEditProfilePopup] = useState(false); 
   const [isLoadingAddPlacePopup, setIsLoadingAddPlacePopup] = useState(false); 
   const [isLoadingEditAvatarPopup, setIsLoadingEditAvatarPopup] = useState(false); 
   const [isLoadingConfirmDeletePopup, setIsLoadingConfirmDeletePopup] = useState(false); 
 
-  
+  /** состояние авторизации/регистрации пользователя и его данных */    
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isSuccessInfoTooltipStatus, setIsSuccessInfoTooltipStatus] = useState(false);
   const [userEmail, setUserEmail] = useState('');
 
   const navigate = useNavigate();
 
-  
+  /** эффекты:
+   * получение данных пользователя и карточек при загрузке стр */
   useEffect(() => {
-    if (isLoggedIn) { // я на столько измоталась с этой работой,что уже не понимаю элементарных вещей
+    if (!isLoggedIn) {
       Promise.all([api.getUserInfoApi(), api.getInitialCards()])
       .then(([currentUser, initialCards]) => {
         setCurrentUser(currentUser);
@@ -73,8 +74,26 @@ function App() {
 
   /** проверка токена */
   useEffect(() => {
+
+    function handleTokenCheck() {
+      const jwt = localStorage.getItem('jwt');
+      if (!jwt) {
+        return;
+      }
+      auth
+        .checkToken(jwt)
+        .then((res) => {
+          setUserEmail(res.data.email);
+          setIsLoggedIn(true);
+          navigate('/')
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+    }
+  
     handleTokenCheck();
-  }, []);
+  }, [navigate]);
 
   useEffect(()=> {
     if (isLoggedIn) {
@@ -108,8 +127,11 @@ function App() {
     setIsInfoTooltipOpen(true);
   }
 
+  /** обработчик лайка на карточках */
   function handleCardLike(card) {
+    /** снова проверяем, есть ли уже лайк на карточке */
     const isLiked = card.likes.some((i) => i._id === currentUser._id);
+    /** запрос в апи и получение новых данных карточки */
     api
       .toggleLikeCard(card._id, !isLiked)
       .then((newCard) => {
@@ -122,29 +144,35 @@ function App() {
       });
   }
 
+  /** универсальная функция, которая принимает функцию запроса */
   function handleSubmit(request) {
+    /** изменяем текст кнопки до вызова запроса */
     //setIsLoading(true);
     request()
+      /** закрывать попап нужно только в `then` */
       .then(closeAllPopups)
+      /** в каждом запросе ловим ошибку */
+      /** console.error обычно используется для логирования ошибок, если никакой другой обработки ошибки нет */
       .catch(console.error)
+      /** в каждом запросе в `finally` возвращаем обратно начальный текст кнопки */
       //.finally(() => setIsLoading(false));
   }
 
-
+  /** обработчик удаления карточки */
   function handleCardDelete(card) {
     setIsLoadingConfirmDeletePopup(true)
     function makeRequest() {
       return api
         .removeCard(card._id)
         .then(() => {
-          setCards((cards) => cards.filter((c) => c._id !== card._id));
+        setCards((cards) => cards.filter((c) => c._id !== card._id));
       })
         .finally(() => {setIsLoadingConfirmDeletePopup(false)})
     }
     handleSubmit(makeRequest);
   }
 
-
+  /** обработчик редактирования данных пользователя */
   function handleUpdateUser(inputValues) {
     setIsLoadingEditProfilePopup(true)
     function makeRequest() {
@@ -156,7 +184,7 @@ function App() {
     handleSubmit(makeRequest);
   }
 
-
+  /** обработчик редактирования аватара пользователя */
   function handleUpdateAvatar(inputValues) {
     setIsLoadingEditAvatarPopup(true)
     function makeRequest() {
@@ -168,21 +196,21 @@ function App() {
     handleSubmit(makeRequest);
   }
 
-
+  /** обработчик добавления новой карточки */
   function handleAddPlaceSubmit(inputValues) {
     setIsLoadingAddPlacePopup(true)
     function makeRequest() {
       return api
         .addCards(inputValues)
         .then((newCard) => {
-          setCards([newCard, ...cards])
+        setCards([newCard, ...cards])
       })
         .finally(() => {setIsLoadingAddPlacePopup(false)})
     }
     handleSubmit(makeRequest);
   }
 
-
+  /** обработчик регистрации пользователя */
   function handleRegister(data) {
     return auth
       .register(data)
@@ -214,23 +242,7 @@ function App() {
   }
 
   /** перенаправляем пользователя после проверки токена */
-  function handleTokenCheck() {
-    const jwt = localStorage.getItem('jwt');
-    if (!jwt) {
-      return;
-    }
-    auth
-      .checkToken(jwt)
-      .then((res) => {
-        setUserEmail(res.data.email);
-        setIsLoggedIn(true);
-        navigate('/')
-      })
-      .catch((err) => {
-        console.log(err)
-      })
-  }
-
+  
   /** обработчик чекаута пользователя */
   function handleSignOut() {
     localStorage.removeItem('jwt');
@@ -249,11 +261,11 @@ function App() {
     setSelectedCard({});
   }
 
-
-  //разметка jsx
+  /** разметка jsx */
   return (
+    // <AppContext.Provider value={{ isLoading, closeAllPopups }}>
       <CurrentUserContext.Provider value={currentUser}>
-        <div className='page'>
+        <div className='root'>
           <Header loggedIn={isLoggedIn} userEmail={userEmail} onSignOut={handleSignOut} />
 
           <Routes>
@@ -334,7 +346,7 @@ function App() {
           />
         </div>
       </CurrentUserContext.Provider>
-
+    // </AppContext.Provider>
   );
 }
 

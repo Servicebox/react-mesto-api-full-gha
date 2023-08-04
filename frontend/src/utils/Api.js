@@ -11,7 +11,7 @@ class Api {
     return Promise.reject(`Ошибка: ${res.status}`);
   }
 
-  //универсальный метод запрос с проверкой
+  /** универсальный метод запрос с проверкой  */
   _request(path, method, data) {
     let body = data;
     if((method === 'PATCH' || method === 'POST') && data) {
@@ -75,6 +75,10 @@ class Api {
 }
 
 
+
+
+
+
 const api = new Api({
   url: 'https://mesto.nomoreparties.co/v1/cohort-64',
   headers: {
@@ -84,3 +88,15 @@ const api = new Api({
 });
 
 export { api };
+
+/* const api = new Api({
+//  url: 'https://mesto.nomoreparties.co/v1/cohort-64',
+url: 'http:// localhost:3000',
+  headers: {
+   // authorization: '5d9c5d74-2e9f-4bf3-bd3c-1563f1b38a12',
+    'Content-Type': 'application/json',
+  },
+});
+
+export { api };
+ */

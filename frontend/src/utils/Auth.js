@@ -11,7 +11,7 @@ class Auth {
     return Promise.reject(`Ошибка: ${res.status}`);
   }
 
- 
+  /** универсальный метод запрос с проверкой  */
   _request(path, method, data) {
     let body = data;
     if ((method === 'PATCH' || method === 'POST') && data) {
@@ -33,7 +33,7 @@ class Auth {
     return this._request(`/signin`, 'POST', data); /** signin - авторизация */
   }
 
-//проверка токена
+  /** проверем токен */
   checkToken(jwt) {
     return fetch(`${this._url}/users/me`, {
       method: 'GET',

@@ -1,5 +1,8 @@
 const router = require('express').Router();
 
+// пакет, предназначенный для обработки валидации данных в
+// Express.js. Он предоставляет удобный способ определения
+// и применения правил валидации для запросов в вашем приложении Express.
 const { celebrate, Joi } = require('celebrate');
 
 const { URL_REGEX } = require('../utils/constants');
