@@ -265,7 +265,7 @@ function App() {
   return (
     // <AppContext.Provider value={{ isLoading, closeAllPopups }}>
       <CurrentUserContext.Provider value={currentUser}>
-        <div className='root'>
+        <div className='page'>
           <Header loggedIn={isLoggedIn} userEmail={userEmail} onSignOut={handleSignOut} />
 
           <Routes>
