@@ -11,6 +11,6 @@
 
 IP-адрес x.x.x.x
 
-Frontend https://...
+Frontend https://servicebox.nomoreparties.co
 
-Backend https://...
+Backend https://api.servicebox.nomoreparties.co
