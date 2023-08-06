@@ -1,6 +1,6 @@
-module.exports = class NotFoundError extends Error {
+module.exports = class ForbiddenError extends Error {
   constructor(message) {
     super(message);
-    this.statusCode = 404;
+    this.statusCode = 403;
   }
 };
