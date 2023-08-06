@@ -141,21 +141,13 @@ function App() {
       .catch((err) => console.log(err))
   }
 
-  /** универсальная функция, которая принимает функцию запроса */
+
   function handleSubmit(request) {
-    /** изменяем текст кнопки до вызова запроса */
-    //setIsLoading(true);
     request()
-      /** закрывать попап нужно только в `then` */
       .then(closeAllPopups)
-      /** в каждом запросе ловим ошибку */
-      /** console.error обычно используется для логирования ошибок, если никакой другой обработки ошибки нет */
       .catch(console.error)
-    /** в каждом запросе в `finally` возвращаем обратно начальный текст кнопки */
-    //.finally(() => setIsLoading(false));
   }
 
-  /** обработчик удаления карточки */
   function handleCardDelete(card) {
     setIsLoadingConfirmDeletePopup(true)
     function makeRequest() {
