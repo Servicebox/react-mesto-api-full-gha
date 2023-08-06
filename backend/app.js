@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
@@ -22,11 +23,9 @@ mongoose.set('strictQuery', true);
 mongoose
   .connect(URL)
   .then(() => {
-    // eslint-disable-next-line no-console
     console.log('БД подключена');
   })
   .catch(() => {
-    // eslint-disable-next-line no-console
     console.log('Не удалось подключиться к БД');
   });
 

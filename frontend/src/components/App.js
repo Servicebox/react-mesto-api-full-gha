@@ -37,7 +37,7 @@ function App() {
   const [selectedCard, setSelectedCard] = useState({})
   const [currentUser, setCurrentUser] = useState(
     {}
-  ) /** создаем переменную состояния, отвечающую за данные пользователя из апи. Стейт данных текущего пользователя*/
+  ) 
   const [cards, setCards] = useState([])
   const [deletedCard, setDeletedCard] = useState({})
   // const [isLoading, setIsLoading] = /** переменная для отслеживания состояния загрузки во время ожидания ответа от сервера */
