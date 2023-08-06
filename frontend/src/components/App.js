@@ -250,10 +250,6 @@ function App() {
       })
   }
 
-
-
-
-  /** обработчик чекаута пользователя */
   function handleSignOut() {
     localStorage.removeItem("jwt")
     setIsLoggedIn(false)
