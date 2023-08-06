@@ -10,7 +10,7 @@ function Main({
   onCardClick,
   onCardLike,
   onCardDeleteClick,
-  //onConfirmDelete,
+  onConfirmDelete,
 }) {
   const currentUser =
     useContext(CurrentUserContext); /** подписка на контекст */

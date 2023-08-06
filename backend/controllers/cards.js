@@ -1,16 +1,16 @@
 const Card = require('../models/card');
-
-const ForbiddenError = require('../errors/ForbiddenError');
 const NotFoundError = require('../errors/NotFoundError');
 const BadRequestError = require('../errors/BadRequestError');
+const ForbiddenError = require('../errors/ForbiddenError');
 
 /** получение карточек */
 function getCards(_, res, next) {
   Card.find({})
-    .populate(['owner', 'likes'])
+
     .then((cards) => res.send({ data: cards }))
     .catch(next);
 }
+
 /** создание новой карточки */
 function createCard(req, res, next) {
   const { name, link } = req.body;
@@ -61,6 +61,7 @@ function deleteCard(req, res, next) {
     })
     .catch(next);
 }
+
 /** лайк карточки */
 function likeCard(req, res, next) {
   const { cardId } = req.params;

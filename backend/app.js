@@ -1,37 +1,29 @@
 require('dotenv').config();
-
 const express = require('express');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
-
+const { PORT } = require('./utils/constants');
+const { URL } = require('./utils/constants');
 const limiter = require('./middlewares/rateLimiter');
-
+const cors = require('./middlewares/cors');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 const routeSignup = require('./routes/signup');
 const routeSignin = require('./routes/signin');
-
 const auth = require('./middlewares/auth');
-
 const routeUsers = require('./routes/users');
 const routeCards = require('./routes/cards');
-
+const errorHandler = require('./middlewares/errorHandler');
 const NotFoundError = require('./errors/NotFoundError');
-const error = require('./middlewares/error');
-
-const { requestLogger, errorLogger } = require('./middlewares/logger');
-
-const URL = 'mongodb://127.0.0.1:27017/mestodb';
-
-const { PORT = 3001, DBPORT = URL } = process.env;
 
 mongoose.set('strictQuery', true);
 
 mongoose
-  .connect(DBPORT)
+  .connect(URL)
   .then(() => {
     // eslint-disable-next-line no-console
-    console.log('БД успешно подключена');
+    console.log('БД подключена');
   })
   .catch(() => {
     // eslint-disable-next-line no-console
@@ -45,24 +37,29 @@ app.use(helmet());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(limiter);
-
 app.use(requestLogger);
+app.use(cors);
+
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('Сервер сейчас упадёт');
+  }, 0);
+});
+
+app.use(limiter);
 
 app.use('/', routeSignup);
 app.use('/', routeSignin);
 
 app.use(auth);
 
+app.use(errorLogger);
+
 app.use('/users', routeUsers);
 app.use('/cards', routeCards);
 
-app.use(errorLogger);
-app.use(errors());
-
-// централизованный обработчик ошибок
 app.use((req, res, next) => next(new NotFoundError('Страницы по запрошенному URL не существует')));
-
-app.use(error);
+app.use(errors());
+app.use(errorHandler);
 
 app.listen(PORT);

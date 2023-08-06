@@ -1,61 +1,13 @@
-const bcrypt = require('bcrypt');
-
+require('dotenv').config();
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-
-const { SECRET_KEY } = require('../utils/constants');
-
 const User = require('../models/user');
 
-const BadRequestError = require('../errors/BadRequestError');
+const { NODE_ENV, SECRET_KEY } = require('../utils/constants');
 const UnauthorizedError = require('../errors/UnauthorizedError');
+const BadRequestError = require('../errors/BadRequestError');
 const NotFoundError = require('../errors/NotFoundError');
 const ConflictError = require('../errors/ConflictError');
-
-/** GET-запрос. Получить всех пользователей  */
-function getUsers(_, res, next) {
-  User.find({})
-    .then((users) => res.send({ users }))
-    .catch(next);
-}
-
-/** GET-запрос. Получить всех пользователей по id */
-function getUserById(req, res, next) {
-  const { id } = req.params;
-
-  User.findById(id)
-
-    .then((user) => {
-      if (user) return res.send({ user });
-
-      throw new NotFoundError('Пользователь с таким id не найден');
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new BadRequestError('Передан некорректный id'));
-      } else {
-        next(err);
-      }
-    });
-}
-
-/** GET-запрос. Получить пользователя по адресу /me */
-function getCurrentUserInfo(req, res, next) {
-  const { userId } = req.user;
-
-  User.findById(userId)
-    .then((user) => {
-      if (user) return res.send({ user });
-
-      throw new NotFoundError('Пользователь с таким id не найден');
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new BadRequestError('Передан некорректный id'));
-      } else {
-        next(err);
-      }
-    });
-}
 
 /** POST-запрос. Зарегистрировать нового пользователя */
 function createUser(req, res, next) {
@@ -103,20 +55,70 @@ function createUser(req, res, next) {
 }
 
 /** контроллер login, который получает из запроса почту и пароль и проверяет их */
-function login(req, res, next) {
+function loginUser(req, res, next) {
   const { email, password } = req.body;
 
   User.findUserByCredentials(email, password)
     .then(({ _id: userId }) => {
       if (userId) {
-        const token = jwt.sign({ userId }, SECRET_KEY, { expiresIn: '7d' });
+        const token = jwt.sign(
+          { userId },
+          NODE_ENV === 'production' ? SECRET_KEY : 'dev-secret',
+          { expiresIn: '7d' },
+        );
 
-        return res.send({ _id: token });
+        return res.send({ token });
       }
 
       throw new UnauthorizedError('Неправильные почта или пароль');
     })
     .catch(next);
+}
+
+/** GET-запрос. Получить всех пользователей  */
+function getUsers(_, res, next) {
+  User.find({})
+    .then((users) => res.send({ users }))
+    .catch(next);
+}
+
+/** GET-запрос. Получить всех пользователей по id */
+function getUserById(req, res, next) {
+  const { id } = req.params;
+
+  User.findById(id)
+
+    .then((user) => {
+      if (user) return res.send(user);
+
+      throw new NotFoundError('Пользователь с таким id не найден');
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new BadRequestError('Передан некорректный id'));
+      } else {
+        next(err);
+      }
+    });
+}
+
+/**  поиск пользователя * */
+function getCurrentUserInfo(req, res, next) {
+  const { userId } = req.user;
+
+  User.findById(userId)
+    .then((user) => {
+      if (user) return res.send(user);
+
+      throw new NotFoundError('Пользователь с таким id не найден');
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new BadRequestError('Передан некорректный id'));
+      } else {
+        next(err);
+      }
+    });
 }
 
 /** обновить данные пользователя */
@@ -136,7 +138,7 @@ function updateUser(req, res, next) {
     },
   )
     .then((user) => {
-      if (user) return res.send({ user });
+      if (user) return res.send(user);
 
       throw new NotFoundError('Пользователь с таким id не найден');
     })
@@ -169,7 +171,7 @@ function updateUserAvatar(req, res, next) {
     },
   )
     .then((user) => {
-      if (user) return res.send({ user });
+      if (user) return res.send(user);
 
       throw new NotFoundError('Пользователь с таким id не найден');
     })
@@ -188,11 +190,10 @@ function updateUserAvatar(req, res, next) {
 
 module.exports = {
   createUser,
-  login,
+  loginUser,
   getUsers,
   getUserById,
   getCurrentUserInfo,
   updateUser,
   updateUserAvatar,
-
 };

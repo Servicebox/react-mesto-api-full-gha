@@ -1,17 +1,17 @@
-import React from "react";
-import { usePopupClose } from "../hooks/usePopupClose.js";
-
-function PopupWithForm({
-  isOpen,
-  title,
-  name,
-  text,
-  children,
-  onClose,
-  onSubmit,
-}) {
-  const popupOpened = isOpen ? 'popup_opened' : '';
-  usePopupClose(isOpen, onClose);
+  import React from "react";
+  import { usePopupClose } from "../hooks/usePopupClose.js";
+  
+  function PopupWithForm({
+    isOpen,
+    title,
+    name,
+    text,
+    children,
+    onClose,
+    onSubmit,
+  }) {
+    const popupOpened = isOpen ? 'popup_opened' : '';
+    usePopupClose(isOpen, onClose);;
   //разметка jsx
   return (
     <div className={`popup ${popupOpened}`}>

@@ -1,31 +1,29 @@
-import React, { useContext } from 'react';
-import { CurrentUserContext } from '../contexts/CurrentUserContext';
+import React, { useContext } from "react"
+import { CurrentUserContext } from "../contexts/CurrentUserContext"
 
 function Card({ card, onCardClick, onCardLike, onCardDeleteClick }) {
-  //подписка на котекст 
-  const currentUser = useContext(CurrentUserContext);
 
-  //определим является ли пользователь владелцем картиники
-  const isOwn = card.owner._id === currentUser._id;
+  const currentUser = useContext(CurrentUserContext)
 
-  const cardDeleteButtonClass = `card__del ${isOwn && 'card__del_active'}`;
+  const isOwn = (card.owner?._id || card.owner) === currentUser._id
 
-  const isLiked = card.likes.some((i) => i._id === currentUser._id);
 
-  const cardLikeButtonClassName = `card__like ${
-    isLiked && 'card__like_active'
-  }`;
+  const cardDeleteButtonClass = `card__del ${isOwn && "card__del_active"}`
+
+  const isLiked = card.likes.some((i) => i === currentUser._id)
+
+  const cardLikeButtonClassName = `card__like ${isLiked && "card__like_active"}`
 
   function handleClick() {
-    onCardClick(card);
+    onCardClick(card)
   }
 
   function handleLikeClick() {
-    onCardLike(card);
+    onCardLike(card)
   }
 
   function handleDeleteClick() {
-    onCardDeleteClick(card);
+    onCardDeleteClick(card)
   }
 
   //разметка jsx

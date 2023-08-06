@@ -1,11 +1,6 @@
 const router = require('express').Router();
-
-// пакет, предназначенный для обработки валидации данных в
-// Express.js. Он предоставляет удобный способ определения
-// и применения правил валидации для запросов в вашем приложении Express.
 const { celebrate, Joi } = require('celebrate');
-
-const { URL_REGEX } = require('../utils/constants');
+const { REGEX_URL } = require('../utils/constants');
 
 const {
   getCards,
@@ -20,7 +15,7 @@ router.post(
   celebrate({
     body: Joi.object().keys({
       name: Joi.string().required().min(2).max(30),
-      link: Joi.string().required().pattern(URL_REGEX),
+      link: Joi.string().required().pattern(REGEX_URL),
     }),
   }),
   createCard,

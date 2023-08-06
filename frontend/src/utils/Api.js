@@ -1,102 +1,114 @@
 class Api {
-  constructor(config) {
-    this._url = config.url;
-    this._headers = config.headers;
+  constructor(options) {
+    this._baseUrl = options.baseUrl
   }
 
   _getResponseData(res) {
     if (res.ok) {
-      return res.json();
+      return Promise.resolve(res.json())
     }
-    return Promise.reject(`Ошибка: ${res.status}`);
+
+    return Promise.reject(`Ошибка: ${res.status}`)
   }
 
-  /** универсальный метод запрос с проверкой  */
-  _request(path, method, data) {
-    let body = data;
-    if((method === 'PATCH' || method === 'POST') && data) {
-      body = JSON.stringify(data);
-    }
-    return fetch(this._url + path, {
-      method,
-      headers: this._headers,
-      body,
+  async editUserInfo(data) {
+    const response = await fetch(`${this._baseUrl}/users/me`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${localStorage.getItem("jwt")}`,
+      },
+      body: JSON.stringify({
+        name: data.name,
+        about: data.about,
+      }),
     })
-    .then(this._getResponseData);
+    return this._getResponseData(response)
   }
 
-  //получим информацию о пользователе
-  getUserInfoApi() {
-    return this._request(`/users/me`, 'GET')
+  async getUserInfoApi() {
+    const response = await fetch(`${this._baseUrl}/users/me`, {
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${localStorage.getItem("jwt")}`,
+      },
+    })
+    return this._getResponseData(response)
   }
 
-  //обновим информацию пользователя
-  editUserInfo(data) {
-    return this._request(`/users/me`, 'PATCH', data)
+  async getCards() {
+    const response = await fetch(`${this._baseUrl}/cards`, {
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${localStorage.getItem("jwt")}`,
+      },
+    })
+    return this._getResponseData(response)
   }
 
-  //обновим аватар пользователя
-  editUserAvatar(data) {
-    return this._request(`/users/me/avatar`, 'PATCH', data)
+  async addCards(data) {
+    const response = await fetch(`${this._baseUrl}/cards`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${localStorage.getItem("jwt")}`,
+      },
+      body: JSON.stringify(data),
+    })
+    return this._getResponseData(response)
   }
 
-  //получим карточки
-  getInitialCards() {
-    return this._request(`/cards`, 'GET')
+  async removeCard(cardId) {
+    const response = await fetch(`${this._baseUrl}/cards/${cardId}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${localStorage.getItem("jwt")}`,
+      },
+    })
+    return this._getResponseData(response)
   }
 
-  //добавим новую карточку
-  addCards(data) {
-    return this._request(`/cards`, 'POST', data)
+  async likeCard(cardId) {
+    const response = await fetch(`${this._baseUrl}/cards/${cardId}/likes`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${localStorage.getItem("jwt")}`,
+      },
+    })
+    return this._getResponseData(response)
   }
 
-  //удалим карточку
-  removeCard(id) {
-    return this._request(`/cards/${id}`, 'DELETE')
+  async dislikeCard(cardId) {
+    const response = await fetch(`${this._baseUrl}/cards/${cardId}/likes`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${localStorage.getItem("jwt")}`,
+      },
+    })
+    return this._getResponseData(response)
   }
 
-  // поставим лайк карточке
-  addCardLike(id) {
-    return this._request(`/cards/${id}/likes`, 'PUT')
-  }
-
-  // удалим лайк с карточки
-  removeCardLike(id) {
-    return this._request(`/cards/${id}/likes`, 'DELETE')
-  }
-
-  toggleLikeCard(id, isCardLiked) {
-    if (isCardLiked) {
-      return this._request(`/cards/${id}/likes`, 'PUT');
-    } else {
-      return this._request(`/cards/${id}/likes`, 'DELETE');
-    }
+  async updateUserAvatar(data) {
+    const response = await fetch(`${this._baseUrl}/users/me/avatar`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${localStorage.getItem("jwt")}`,
+      },
+      body: JSON.stringify({
+        avatar: data.avatar,
+      }),
+    })
+    return this._getResponseData(response)
   }
 }
 
-
-
-
-
-
 const api = new Api({
-  url: 'https://mesto.nomoreparties.co/v1/cohort-64',
-  headers: {
-    authorization: '5d9c5d74-2e9f-4bf3-bd3c-1563f1b38a12',
-    'Content-Type': 'application/json',
-  },
-});
+ // baseUrl: "http://localhost:3000",
+  baseUrl: "https://api.servicebox.nomoreparties.co",
+})
 
-export { api };
-
-/* const api = new Api({
-//  url: 'https://mesto.nomoreparties.co/v1/cohort-64',
-url: 'http:// localhost:3000',
-  headers: {
-   // authorization: '5d9c5d74-2e9f-4bf3-bd3c-1563f1b38a12',
-    'Content-Type': 'application/json',
-  },
-});
-
-export { api };
- */
+export { api }

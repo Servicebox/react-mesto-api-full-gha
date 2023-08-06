@@ -1,55 +1,56 @@
 class Auth {
-  constructor(config) {
-    this._url = config.url;
-    this._headers = config.headers;
+  constructor({ baseUrl, headers }) {
+    this._baseUrl = baseUrl
+    this._headers = headers
   }
 
   _getResponseData(res) {
-    if (res.ok) {
-      return res.json();
+    if (!res.ok) {
+      return Promise.reject(`Ошибка: ${res.status}`)
     }
-    return Promise.reject(`Ошибка: ${res.status}`);
+    return res.json()
   }
 
-  /** универсальный метод запрос с проверкой  */
-  _request(path, method, data) {
-    let body = data;
-    if ((method === 'PATCH' || method === 'POST') && data) {
-      body = JSON.stringify(data);
-    }
-    return fetch(this._url + path, {
-      method,
+  register(newUserData) {
+    return fetch(`${this._baseUrl}/signup`, {
+      method: "POST",
       headers: this._headers,
-      body,
-    })
-    .then(this._getResponseData);
+      body: JSON.stringify({
+        email: newUserData.email,
+        password: newUserData.password,
+      }),
+    }).then(this._getResponseData)
   }
 
-  register(data) {
-    return this._request(`/signup`, 'POST', data); /** signup - регистрация */
+  login(userData) {
+    return fetch(`${this._baseUrl}/signin`, {
+      method: "POST",
+      headers: this._headers,
+      body: JSON.stringify({
+        email: userData.email,
+        password: userData.password,
+      }),
+    }).then(this._getResponseData)
   }
 
-  login(data) {
-    return this._request(`/signin`, 'POST', data); /** signin - авторизация */
-  }
-
-  /** проверем токен */
   checkToken(jwt) {
-    return fetch(`${this._url}/users/me`, {
-      method: 'GET',
+    return fetch(`${this._baseUrl}/users/me`, {
+      method: "GET",
       headers: {
-        ...this._headers,
-        Authorization: `Bearer ${jwt}`,
+        "Content-Type": "application/json",
+        authorization: `Bearer ${jwt}`,
       },
-    }).then(this._getResponseData);
+    }).then(this._getResponseData)
   }
 }
 
-const auth = new Auth({
-  url: 'https://auth.nomoreparties.co', /** базовый url */
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
 
-export { auth };
+const auth = new Auth({
+ // baseUrl: "http://localhost:3000",
+  baseUrl: "https://api.servicebox.nomoreparties.co",
+  headers: {
+    "Content-Type": "application/json",
+  },
+})
+
+export { auth }

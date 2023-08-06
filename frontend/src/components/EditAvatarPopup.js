@@ -3,11 +3,13 @@ import { PopupWithForm } from './PopupWithForm.js';
 import { CurrentUserContext } from '../contexts/CurrentUserContext.js';
 
 function EditAvatarPopup({ isOpen, onClose, onUpdateAvatar, isLoading }) {
-  const currentUser = useContext(CurrentUserContext); 
-  const avatarRef = useRef();
+  const currentUser = useContext(CurrentUserContext); /** подписка на контекст */
+  const avatarRef = useRef(); /** реф для аватара */
+
   function handleSubmit(e) {
     e.preventDefault();
     onUpdateAvatar({
+      /** значение инпута, полученное с помощью рефа */
       avatar:
         avatarRef.current
           .value,

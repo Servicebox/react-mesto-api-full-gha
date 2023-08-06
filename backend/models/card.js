@@ -1,27 +1,23 @@
 const mongoose = require('mongoose');
-
-const { Schema } = mongoose;
+const { REGEX_URL } = require('../utils/constants');
 
 const { ObjectId } = mongoose.Schema.Types;
-
-const { URL_REGEX } = require('../utils/constants');
+const { Schema } = mongoose;
 
 const cardSchema = new Schema(
   {
     name: {
       type: String,
       required: true,
-      validate: {
-        validator: ({ length }) => length >= 2 && length <= 30,
-        message: 'Имя карточки должно быть длиной от 2 до 30 символов',
-      },
+      minlength: [2, 'Минимальная длина поля "name" - 2'],
+      maxlength: [30, 'Максимальная длина поля "name" - 30'],
     },
 
     link: {
       type: String,
       required: true,
       validate: {
-        validator: (url) => URL_REGEX.test(url),
+        validator: (url) => REGEX_URL.test(url),
         message: 'Требуется ввести URL',
       },
     },
@@ -32,11 +28,13 @@ const cardSchema = new Schema(
       required: true,
     },
 
-    likes: [{
-      type: ObjectId,
-      ref: 'user',
-      default: [],
-    }],
+    likes: [
+      {
+        type: ObjectId,
+        ref: 'user',
+        default: [],
+      },
+    ],
 
     createdAt: {
       type: Date,

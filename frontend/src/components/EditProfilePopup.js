@@ -2,9 +2,11 @@ import React, { useState, useContext, useEffect } from 'react';
 import { CurrentUserContext } from '../contexts/CurrentUserContext.js';
 import { PopupWithForm } from './PopupWithForm.js';
 
-function EditProfilePopup({ isOpen, onClose, onUpdateUser, isLoading }) { 
+function EditProfilePopup({ isOpen, onClose, onUpdateUser, isLoading }) {
   const currentUser = useContext(CurrentUserContext);
+
   const [name, setName] = useState('');
+
   const [description, setDescription] = useState('');
 
   useEffect(() => {
@@ -27,6 +29,7 @@ function EditProfilePopup({ isOpen, onClose, onUpdateUser, isLoading }) {
       about: description,
     });
   }
+
   //разметка jsx
   return (
     <PopupWithForm

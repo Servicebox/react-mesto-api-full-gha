@@ -3,9 +3,9 @@ import { usePopupClose } from '../hooks/usePopupClose.js';
 import correct from '../images/correct.svg';
 import error from '../images/error.svg';
 
-
 function InfoTooltip({ isOpen, isConfirmStatus, onClose }) {
   usePopupClose(isOpen, onClose);
+
 
   //разметка jsx
   return (

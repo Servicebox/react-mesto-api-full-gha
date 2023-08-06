@@ -1,6 +1,7 @@
 import React from 'react';
 import '../index.css';
 import { usePopupClose } from '../hooks/usePopupClose';
+
 function ImagePopup({ card, onClose }) {
   usePopupClose(card.link, onClose);
     //разметка jsx

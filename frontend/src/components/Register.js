@@ -1,8 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useForm } from '../hooks/useForm.js';
 
-/** компонент регистрации */
-
 function Register({ onRegister }) {
   const { values, handleChange } = useForm({ email: '', password: '' });
 
@@ -10,7 +8,6 @@ function Register({ onRegister }) {
     e.preventDefault();
     onRegister(values);
   }
-
   /** разметка jsx */
   return (
     <section className='auth'>
