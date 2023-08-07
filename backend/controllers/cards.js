@@ -63,72 +63,33 @@ function deleteCard(req, res, next) {
 }
 
 /** лайк карточки */
-function likeCard(req, res, next) {
-  const { cardId } = req.params;
-  const { userId } = req.user;
-
-  Card.findByIdAndUpdate(
-    cardId,
-    {
-      $addToSet: {
-        likes: userId,
-      },
-    },
-    {
-      new: true,
-    },
+const likeCard = (req, res, next) => Card
+  .findByIdAndUpdate(
+    req.params.cardId,
+    { $addToSet: { likes: req.user._id } },
+    { new: true, runValidators: true },
   )
-    .then((card) => {
-      if (card) return res.send({ data: card });
-
-      throw new NotFoundError('Карточка с указанным id не найдена');
-    })
-    .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
-        next(
-          new BadRequestError(
-            'Переданы некорректные данные при добавлении лайка карточке',
-          ),
-        );
-      } else {
-        next(err);
-      }
-    });
-}
-
+  .then((card) => {
+    if (!card) {
+      throw new NotFoundError('Карточка не найден');
+    }
+    res.send(card);
+  })
+  .catch(next);
 /** дизлайк карточки */
-function dislikeCard(req, res, next) {
-  const { cardId } = req.params;
-  const { userId } = req.user;
-
-  Card.findByIdAndUpdate(
-    cardId,
-    {
-      $pull: {
-        likes: userId,
-      },
-    },
-    {
-      new: true,
-    },
+const dislikeCard = (req, res, next) => Card
+  .findByIdAndUpdate(
+    req.params.cardId,
+    { $pull: { likes: req.user._id } },
+    { new: true },
   )
-    .then((card) => {
-      if (card) return res.send({ data: card });
-
-      throw new NotFoundError('Данные по указанному id не найдены');
-    })
-    .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
-        next(
-          new BadRequestError(
-            'Переданы некорректные данные при снятии лайка карточки',
-          ),
-        );
-      } else {
-        next(err);
-      }
-    });
-}
+  .then((card) => {
+    if (!card) {
+      throw new NotFoundError('Карточка не найден');
+    }
+    res.send(card);
+  })
+  .catch(next);
 
 module.exports = {
   getCards,

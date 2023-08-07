@@ -1,6 +1,7 @@
 require('dotenv').config();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { default: mongoose } = require('mongoose');
 const User = require('../models/user');
 
 const { NODE_ENV, SECRET_KEY } = require('../utils/constants');
@@ -57,19 +58,15 @@ function createUser(req, res, next) {
 /** контроллер login, который получает из запроса почту и пароль и проверяет их */
 function loginUser(req, res, next) {
   const { email, password } = req.body;
-
-  User.findUserByCredentials(email, password)
-    .then(({ _id: userId }) => {
-      if (userId) {
-        const token = jwt.sign(
-          { userId },
-          NODE_ENV === 'production' ? SECRET_KEY : 'dev-secret',
-          { expiresIn: '7d' },
-        );
-
-        return res.send({ token });
-      }
-
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign(
+        { _id: user._id },
+        NODE_ENV === 'production' ? SECRET_KEY : 'dev-secret',
+        { expiresIn: '7d' },
+      );
+      return res.send({ token });
+      // eslint-disable-next-line no-unreachable
       throw new UnauthorizedError('Неправильные почта или пароль');
     })
     .catch(next);
@@ -94,7 +91,7 @@ function getUserById(req, res, next) {
       throw new NotFoundError('Пользователь с таким id не найден');
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err instanceof mongoose.Error.ValidationError) {
         next(new BadRequestError('Передан некорректный id'));
       } else {
         next(err);
@@ -143,7 +140,7 @@ function updateUser(req, res, next) {
       throw new NotFoundError('Пользователь с таким id не найден');
     })
     .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
+      if (err instanceof mongoose.Error.ValidationError) {
         next(
           new BadRequestError(
             'Переданы некорректные данные при обновлении профиля',
