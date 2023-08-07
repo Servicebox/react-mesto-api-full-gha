@@ -5,7 +5,7 @@ const { default: mongoose } = require('mongoose');
 const User = require('../models/user');
 
 const { NODE_ENV, SECRET_KEY } = require('../utils/constants');
-const UnauthorizedError = require('../errors/UnauthorizedError');
+
 const BadRequestError = require('../errors/BadRequestError');
 const NotFoundError = require('../errors/NotFoundError');
 const ConflictError = require('../errors/ConflictError');
@@ -66,8 +66,6 @@ function loginUser(req, res, next) {
         { expiresIn: '7d' },
       );
       return res.send({ token });
-      // eslint-disable-next-line no-unreachable
-      throw new UnauthorizedError('Неправильные почта или пароль');
     })
     .catch(next);
 }
@@ -82,23 +80,19 @@ function getUsers(_, res, next) {
 /** GET-запрос. Получить всех пользователей по id */
 function getUserById(req, res, next) {
   const { id } = req.params;
-
   User.findById(id)
-
     .then((user) => {
       if (user) return res.send(user);
-
       throw new NotFoundError('Пользователь с таким id не найден');
     })
     .catch((err) => {
-      if (err instanceof mongoose.Error.ValidationError) {
+      if (err.name === 'CastError') {
         next(new BadRequestError('Передан некорректный id'));
       } else {
         next(err);
       }
     });
 }
-
 /**  поиск пользователя * */
 function getCurrentUserInfo(req, res, next) {
   const { userId } = req.user;
@@ -110,7 +104,7 @@ function getCurrentUserInfo(req, res, next) {
       throw new NotFoundError('Пользователь с таким id не найден');
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err instanceof mongoose.Error.ValidationError) {
         next(new BadRequestError('Передан некорректный id'));
       } else {
         next(err);
@@ -173,7 +167,7 @@ function updateUserAvatar(req, res, next) {
       throw new NotFoundError('Пользователь с таким id не найден');
     })
     .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
+      if (err instanceof mongoose.Error.ValidationError) {
         next(
           new BadRequestError(
             'Переданы некорректные данные при обновлении профиля пользователя',

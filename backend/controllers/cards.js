@@ -67,7 +67,7 @@ const likeCard = (req, res, next) => Card
   .findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
-    { new: true, runValidators: true },
+    // { new: true, runValidators: true },
   )
   .then((card) => {
     if (!card) {
