@@ -1,11 +1,10 @@
 require('dotenv').config();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { default: mongoose } = require('mongoose');
 const User = require('../models/user');
 
 const { NODE_ENV, SECRET_KEY } = require('../utils/constants');
-
+const UnauthorizedError = require('../errors/UnauthorizedError');
 const BadRequestError = require('../errors/BadRequestError');
 const NotFoundError = require('../errors/NotFoundError');
 const ConflictError = require('../errors/ConflictError');
@@ -58,14 +57,20 @@ function createUser(req, res, next) {
 /** контроллер login, который получает из запроса почту и пароль и проверяет их */
 function loginUser(req, res, next) {
   const { email, password } = req.body;
-  return User.findUserByCredentials(email, password)
-    .then((user) => {
-      const token = jwt.sign(
-        { _id: user._id },
-        NODE_ENV === 'production' ? SECRET_KEY : 'dev-secret',
-        { expiresIn: '7d' },
-      );
-      return res.send({ token });
+
+  User.findUserByCredentials(email, password)
+    .then(({ _id: userId }) => {
+      if (userId) {
+        const token = jwt.sign(
+          { userId },
+          NODE_ENV === 'production' ? SECRET_KEY : 'dev-secret',
+          { expiresIn: '7d' },
+        );
+
+        return res.send({ token });
+      }
+
+      throw new UnauthorizedError('Неправильные почта или пароль');
     })
     .catch(next);
 }
@@ -80,9 +85,12 @@ function getUsers(_, res, next) {
 /** GET-запрос. Получить всех пользователей по id */
 function getUserById(req, res, next) {
   const { id } = req.params;
+
   User.findById(id)
+
     .then((user) => {
       if (user) return res.send(user);
+
       throw new NotFoundError('Пользователь с таким id не найден');
     })
     .catch((err) => {
@@ -93,6 +101,7 @@ function getUserById(req, res, next) {
       }
     });
 }
+
 /**  поиск пользователя * */
 function getCurrentUserInfo(req, res, next) {
   const { userId } = req.user;
@@ -104,7 +113,7 @@ function getCurrentUserInfo(req, res, next) {
       throw new NotFoundError('Пользователь с таким id не найден');
     })
     .catch((err) => {
-      if (err instanceof mongoose.Error.ValidationError) {
+      if (err.name === 'CastError') {
         next(new BadRequestError('Передан некорректный id'));
       } else {
         next(err);
@@ -134,7 +143,7 @@ function updateUser(req, res, next) {
       throw new NotFoundError('Пользователь с таким id не найден');
     })
     .catch((err) => {
-      if (err instanceof mongoose.Error.ValidationError) {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
         next(
           new BadRequestError(
             'Переданы некорректные данные при обновлении профиля',
@@ -167,7 +176,7 @@ function updateUserAvatar(req, res, next) {
       throw new NotFoundError('Пользователь с таким id не найден');
     })
     .catch((err) => {
-      if (err instanceof mongoose.Error.ValidationError) {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
         next(
           new BadRequestError(
             'Переданы некорректные данные при обновлении профиля пользователя',
